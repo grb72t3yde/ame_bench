@@ -1,3 +1,6 @@
 [submodule "submodules/memcached"]
 	path = submodules/memcached
 	url = git@github.com:grb72t3yde/memcached.git
+[submodule "submodules/YCSB"]
+	path = submodules/YCSB
+	url = git@github.com:grb72t3yde/YCSB.git
