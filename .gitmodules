@@ -1,0 +1,3 @@
+[submodule "submodules/memcached"]
+	path = submodules/memcached
+	url = git@github.com:grb72t3yde/memcached.git
