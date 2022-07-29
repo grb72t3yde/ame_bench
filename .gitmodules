@@ -4,3 +4,6 @@
 [submodule "submodules/YCSB"]
 	path = submodules/YCSB
 	url = git@github.com:grb72t3yde/YCSB.git
+[submodule "submodules/prim-benchmarks"]
+	path = submodules/prim-benchmarks
+	url = git@github.com:grb72t3yde/prim-benchmarks.git
