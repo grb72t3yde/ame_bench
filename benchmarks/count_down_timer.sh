@@ -10,7 +10,7 @@ do
      do
          while [ $sec -ge 0 ]
          do
-             echo -ne "$min:$sec\033[O\r"
+             #echo -ne "$min:$sec\033[O\r"
              let "sec=sec-1"
              sleep 1
          done
