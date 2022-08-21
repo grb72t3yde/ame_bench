@@ -12,9 +12,16 @@ then
 fi
 touch logs/free.txt
 
+if [[ -f logs/total.txt ]]
+then
+    rm logs/total.txt
+fi
+touch logs/total.txt
+
 # print field titles
 printf "Time\\Zones\t" >> logs/managed.txt
 printf "Time\\Zones\t" >> logs/free.txt
+printf "      date     time $(free -m | grep total | sed -E 's/^    (.*)/\1/g')\n" >> logs/total.txt
 
 cat /proc/zoneinfo | grep -e "Node *." | while read -r line
 do
@@ -28,7 +35,7 @@ printf "\n" >> logs/free.txt
 
 # periodically gleaning zoneinfo
 while true; do
-    time=$(date '+%Y-%m-%d:%H:%M:%S')
+    time=$(date '+%Y-%m-%d@%H:%M:%S')
     # print managed
     printf "%s\t" $time >> logs/managed.txt
     cat /proc/zoneinfo | grep -e "managed" | while read -r line
@@ -46,6 +53,9 @@ while true; do
         printf "%d MB\t" $free_mb >> logs/free.txt
     done
     printf "\n" >> logs/free.txt
+
+    # print total
+    printf "%s $(free -m | grep Mem: | sed 's/Mem://g')\n" $time >> logs/total.txt
 
     bash ./count_down_timer.sh 0 1 0
 done
