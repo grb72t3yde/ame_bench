@@ -41,7 +41,7 @@ while true; do
     cat /proc/zoneinfo | grep -e "managed" | while read -r line
     do
         managed_mb=$(echo $line | awk '{print $2}')
-        printf "%d MB\t" $managed_mb >> logs/managed.txt
+        printf "%d\t" $managed_mb >> logs/managed.txt
     done
     printf "\n" >> logs/managed.txt
 
@@ -50,12 +50,12 @@ while true; do
     cat /proc/zoneinfo | grep -e "pages free" | while read -r line
     do
         free_mb=$(echo $line | awk '{print $3}')
-        printf "%d MB\t" $free_mb >> logs/free.txt
+        printf "%d\t" $free_mb >> logs/free.txt
     done
     printf "\n" >> logs/free.txt
 
     # print total
     printf "%s $(free -m | grep Mem: | sed 's/Mem://g')\n" $time >> logs/total.txt
 
-    bash ./count_down_timer.sh 0 1 0
+    bash ./count_down_timer.sh 0 0 15
 done
