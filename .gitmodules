@@ -7,3 +7,6 @@
 [submodule "submodules/prim-benchmarks"]
 	path = submodules/prim-benchmarks
 	url = git@github.com:grb72t3yde/prim-benchmarks.git
+[submodule "submodules/SparseP"]
+	path = submodules/SparseP
+	url = git@github.com:grb72t3yde/SparseP.git

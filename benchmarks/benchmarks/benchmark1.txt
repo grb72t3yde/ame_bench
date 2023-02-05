@@ -1,0 +1,5 @@
+0,15,bash ./run_one_ycsb_workload.sh 11211 a
+0,15,bash ./run_one_ycsb_workload.sh 11212 a
+0,15,bash ./run_one_ycsb_workload.sh 11213 a
+0,15,bash ./run_one_ycsb_workload.sh 11214 a
+0,15,bash ./run_one_ycsb_workload.sh 11215 a
