@@ -10,3 +10,6 @@
 [submodule "submodules/SparseP"]
 	path = submodules/SparseP
 	url = git@github.com:grb72t3yde/SparseP.git
+[submodule "submodules/PIM-tree"]
+	path = submodules/PIM-tree
+	url = git@github.com:grb72t3yde/PIM-tree.git
