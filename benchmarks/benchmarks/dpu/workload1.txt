@@ -1,0 +1,5 @@
+python3 run_ame.py BS 1024 8388608
+-
+python3 run_ame.py BS 512 4194304
+python3 run_ame.py BS 512 4194304
+-

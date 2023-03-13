@@ -1,0 +1,1 @@
+0,bash ./run_one_ycsb_workload.sh 11211 b

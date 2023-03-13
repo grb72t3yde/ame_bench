@@ -2,111 +2,89 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <string.h>
-#include <time.h>
+#include "timer.h"
 #include "ame_bench.h"
 #include "ame_config.h"
 
-workload_t workloads[NR_WORKLOADS];
-int used_host_mem_size;
-unsigned long nr_used_dpu_ranks;
-
-pthread_mutex_t mutex;
-
-time_t start_t, end_t;
-
 void *run_one_workload(void *arg)
 {
-    int index = *(int *)arg;
+    workload_t *workload = (workload_t *)arg;
 
-    system(workloads[index].cmd);
-
-    pthread_mutex_lock(&mutex);
-    used_host_mem_size -= workloads[index].host_mem_size;
-    pthread_mutex_unlock(&mutex);
+    printf("%s\n", workload->cmd);
+    system(workload->cmd);
 }
 
-void read_input_file(const char *path, workload_t *workloads)
+int read_dpu_input_file(FILE *fp, workload_t *workloads)
 {
-    FILE *fp;
-    char bench[100] = {'\0'};
+    char line[100] = {'\0'};
     int i = 0;
 
-    printf("file name %s\n", path);
-    if ((fp = fopen(path, "r")) == NULL) {
+    if (fp == NULL) {
         printf("Open file failed!\n");
         exit(0);
     }
 
-    while (fgets(bench, 100, fp) != NULL) {
-        char *token;
+    while (fgets(line, 100, fp) != NULL) {
 
-        /* workload type */
-        token = strtok(bench, ",");
-        workloads[i].type = atoi(token); 
+        if (line[0] == '-')
+            break;
 
-        /* mem size */
-        token = strtok(NULL, ",");
-        workloads[i].host_mem_size = atoi(token); 
+        workloads[i].cmd = malloc(strlen(line) + 1);
+        strcpy(workloads[i].cmd, line);
 
-        /* command */
-        token = strtok(NULL, ",");
-        workloads[i].cmd = malloc(strlen(token)); 
-        strcpy(workloads[i].cmd, token);
         ++i;
     }
 
-    fclose(fp);
+    return i;
 }
 
 int main()
 {
-    read_input_file("benchmarks/benchmark1.txt", workloads);
+    Timer timer;
+    int nr_used_dpu_ranks = 0;
 
-    pthread_mutex_init(&mutex, NULL);
-    used_host_mem_size = 0;
-    nr_used_dpu_ranks = 0;
+    // read host side program input
+    workload_t host_workload;
 
-    time(&start_t);
+    char *ycsb_cmd = "bash ./run_one_ycsb_workload.sh 11211 a";
+    host_workload.cmd = malloc(strlen(ycsb_cmd) + 1);
+    strcpy(host_workload.cmd, ycsb_cmd);
 
-    for (int i = 0; i < NR_WORKLOADS; ++i) {
-        if (workloads[i].type == ycsb) {
-try:
-            pthread_mutex_lock(&mutex);
-#if RUNMODE == WITHOUT_AME
-            if (HOST_MEM_SIZE_GB - used_host_mem_size < workloads[i].host_mem_size) {
-#elif RUNMODE == AME_NO_THRESHOLD || RUNMODE == AME_UTIL_PREDICTION
-            if (HOST_MEM_SIZE_GB - used_host_mem_size + (NR_DPU_RANKS - nr_used_dpu_ranks) * MRAM_SIZE_GB_PER_RANK < workloads[i].host_mem_size) {
-#elif RUNMODE == AME_THRESHOLD_HALF
-            if (HOST_MEM_SIZE_GB - used_host_mem_size + (NR_DPU_RANKS / 2 - nr_used_dpu_ranks) * MRAM_SIZE_GB_PER_RANK < workloads[i].host_mem_size) {
-#endif
-                pthread_mutex_unlock(&mutex);
+    start(&timer, 0, 0);
+    pthread_create(&host_workload.th, NULL, &run_one_workload, &host_workload);
 
-                printf("No mem, try after 10 secs!!!!!!!!!!!!!!!!!!!!!\n");
-                system("bash ./count_down_timer.sh 0 0 10");
-                goto try;
+    FILE *fp = fopen("benchmarks/dpu/workload1.txt", "r");
+    for (int i = 0; i < NR_GROUPS; ++i) {
+        workload_t group[NR_MAX_WORKLOAD_PER_GROUP];
+
+        // read group 1
+        int nr_workloads_of_group = read_dpu_input_file(fp, group);
+
+        // run group 1
+        for (int j = 0; j < nr_workloads_of_group; j++) {
+            //printf("%s", group[j].cmd);
+            pthread_create(&group[j].th, NULL, &run_one_workload, &group[j]);
+        }
+
+        for (int j = 0; j < nr_workloads_of_group; j++) {
+            if (pthread_join(group[j].th, NULL) != 0) {
+                perror("Fail to join thread\n");
             }
-
-            used_host_mem_size += workloads[i].host_mem_size;
-            pthread_create(&workloads[i].th, NULL, &run_one_workload, &i);
-            pthread_mutex_unlock(&mutex);
-        } else {
-
         }
-        system("bash ./count_down_timer.sh 0 0 30");
+        printf("%d\n", i);
+        system("bash ./count_down_timer.sh 0 0 5");
     }
+    fclose(fp);
     
-    for (int i = 0; i < NR_WORKLOADS; ++i) {
-        if (pthread_join(workloads[i].th, NULL) != 0) {
-            perror("Fail to join thread\n");
-        }
+    if (pthread_join(host_workload.th, NULL) != 0) {
+        perror("Fail to join thread\n");
     }
+    stop(&timer, 0);
 
-    time(&end_t);
+    printf("Total time: ");
+    print(&timer, 0, 1);
+    printf("\n");
 
-    double total_t = (double)(end_t - start_t);
-    printf("Total time taken by CPU: %f\n", difftime(end_t, start_t));
-
-    pthread_mutex_destroy(&mutex);
     return 0;
 
 }
