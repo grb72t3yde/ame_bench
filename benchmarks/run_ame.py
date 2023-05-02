@@ -2,23 +2,23 @@ import os
 import sys
 import getpass
 
-rootdir = "/home/grb72t3yde/ame_bench/submodules/prim-benchmarks" # Include path to repo
+rootdir = "~/ame_bench/submodules/prim-benchmarks" # Include path to repo
 
-applications = {"VA"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i 167772160 -x 1"],
+applications = {"VA"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
                 "GEMV"     : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/gemv_host -m 163840 -n 4096"],
                 "SpMV"     : ["NR_DPUS=X NR_TASKLETS=Y make all", "./bin/host_code -v 0 -f data/bcsstk30.mtx.64.mtx"],
-                "SEL"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i 251658240 -x 1"],
-                "UNI"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i 251658240 -x 1"],
-                "BS"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/bs_host -i I"],
-                "TS"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/ts_host -n 33554432"],
+                "SEL"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
+                "UNI"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
+                "BS"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/bs_host -i I -w 0 -e 1"],
+                "TS"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/ts_host -n I -w 0 -e 1"],
                 "BFS"      : ["NR_DPUS=X NR_TASKLETS=Y make all", "./bin/host_code -v 0 -f data/loc-gowalla_edges.txt"],
                 "MLP"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/mlp_host -m 163840 -n 4096"],
                 "NW"       : ["NR_DPUS=X NR_TASKLETS=Y BL=32 BL_IN=2 make all", "./bin/nw_host -w 0 -e 1 -n 65536"],
-                "HST-S"    : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -b 256 -x 2"],
-                "HST-L"    : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -b 256 -x 2"],
-                "RED"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z VERSION=SINGLE make all", "./bin/host_code -w 0 -e 1 -i 419430400 -x 1"],
-                "SCAN-SSA" : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i 251658240 -x 1"],
-                "SCAN-RSS" : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i 251658240 -x 1"],
+                "HST-S"    : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -b 256 -i I -x 2"],
+                "HST-L"    : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -b 256 -i I -x 2"],
+                "RED"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z VERSION=SINGLE make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
+                "SCAN-SSA" : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
+                "SCAN-RSS" : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
                 "TRNS"     : ["NR_DPUS=X NR_TASKLETS=Y make all", "./bin/host_code -w 0 -e 1 -p 2048 -o 12288 -x 1"],}
 
 def run(app_name):
@@ -27,6 +27,7 @@ def run(app_name):
     #NR_DPUS = [256, 512, 1024]
     NR_DPUS = sys.argv[2]
     INPUT_SIZE = sys.argv[3]
+    MODE = sys.argv[4]
     BL = [10]
 
     if app_name in applications:
@@ -68,6 +69,10 @@ def run(app_name):
                     m = make.replace("X", str(NR_DPUS))
                     m = m.replace("Y", str(t))
                     m = m.replace("Z", str(b))
+
+                    if MODE == "ASYNC":
+                        m += " MODE=ASYNC"
+
                     print ("Running = " + m)
                     try:
                         os.system(m)

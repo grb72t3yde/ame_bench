@@ -10,8 +10,15 @@ void *run_one_workload(void *arg)
 {
     workload_t *workload = (workload_t *)arg;
 
-    printf("%s\n", workload->cmd);
+    if (workload->cmd_type == RUN) {
+        printf(KGRN"Section2 evaluation: Start running YCSB workload\n");
+    }
+
     system(workload->cmd);
+
+    if (workload->cmd_type == RUN) {
+        printf(KGRN"Section2 evaluation: YCSB workload done!\n");
+    }
 }
 
 int read_dpu_input_file(FILE *fp, workload_t *workloads)
@@ -41,28 +48,45 @@ int read_dpu_input_file(FILE *fp, workload_t *workloads)
 int main()
 {
     Timer timer;
-    int nr_used_dpu_ranks = 0;
-
-    // read host side program input
-    workload_t host_workload;
-
-    char *ycsb_cmd = "bash ./run_one_ycsb_workload.sh 11211 a";
-    host_workload.cmd = malloc(strlen(ycsb_cmd) + 1);
-    strcpy(host_workload.cmd, ycsb_cmd);
 
     start(&timer, 0, 0);
-    pthread_create(&host_workload.th, NULL, &run_one_workload, &host_workload);
+#if RUN_HOST_WORKLOAD == 1
+    workload_t host_workload;
 
-    FILE *fp = fopen("benchmarks/dpu/workload1.txt", "r");
+    system("bash ~/upmem-2021.3.0-Linux-x86_64-ame/upmem_env.sh");
+
+    char *load_ycsb_cmd = "bash ./load_one_ycsb_workload.sh 11211 a";
+    char *run_ycsb_cmd = "bash ./run_one_ycsb_workload.sh 11211 a";
+    host_workload.cmd = malloc(strlen(load_ycsb_cmd) + 1);
+    host_workload.cmd_type = LOAD;
+    strcpy(host_workload.cmd, load_ycsb_cmd);
+
+    /* Load YCSB workload */
+    pthread_create(&host_workload.th, NULL, &run_one_workload, &host_workload);
+    if (pthread_join(host_workload.th, NULL) != 0) {
+        perror("Fail to join thread\n");
+    }
+
+    /* Run YCSB workload */
+    strcpy(host_workload.cmd, run_ycsb_cmd);
+    host_workload.cmd_type = RUN;
+    pthread_create(&host_workload.th, NULL, &run_one_workload, &host_workload);
+#endif
+
+#if RUN_DPU_WORKLOADS == 1
+    FILE *fp = fopen("benchmarks/dpu/SCAN-RSS_1024.txt", "r");
+
+    /* Pre-DPU program delay */
+    system("bash ./count_down_timer.sh 0 5 0");
+
     for (int i = 0; i < NR_GROUPS; ++i) {
         workload_t group[NR_MAX_WORKLOAD_PER_GROUP];
 
-        // read group 1
         int nr_workloads_of_group = read_dpu_input_file(fp, group);
 
-        // run group 1
+        printf("=================================================================\n");
+        printf(KYEL"Section2 evaluation: Launching DPU process...\n");
         for (int j = 0; j < nr_workloads_of_group; j++) {
-            //printf("%s", group[j].cmd);
             pthread_create(&group[j].th, NULL, &run_one_workload, &group[j]);
         }
 
@@ -71,14 +95,17 @@ int main()
                 perror("Fail to join thread\n");
             }
         }
-        printf("%d\n", i);
-        system("bash ./count_down_timer.sh 0 0 5");
+        printf(KYEL"Section2 evaluation: DPU process terminated!\n");
+        printf("=================================================================\n");
     }
     fclose(fp);
-    
+#endif
+
+#if RUN_HOST_WORKLOAD == 1
     if (pthread_join(host_workload.th, NULL) != 0) {
         perror("Fail to join thread\n");
     }
+#endif
     stop(&timer, 0);
 
     printf("Total time: ");
@@ -86,5 +113,4 @@ int main()
     printf("\n");
 
     return 0;
-
 }
