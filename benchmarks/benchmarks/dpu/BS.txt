@@ -1,0 +1,2 @@
+python3 run_prim_workload.py BS 1024 4194304000 DMP
+-
