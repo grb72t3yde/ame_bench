@@ -2,7 +2,7 @@ import os
 import sys
 import getpass
 
-rootdir = "~/ame_bench/submodules/prim-benchmarks" # Include path to repo
+rootdir = "/home/membo/membo_bench/submodules/prim-benchmarks" # Include path to repo
 
 applications = {"VA"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
                 "GEMV"     : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/gemv_host -m 163840 -n 4096"],
@@ -19,7 +19,8 @@ applications = {"VA"       : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/ho
                 "RED"      : ["NR_DPUS=X NR_TASKLETS=Y BL=Z VERSION=SINGLE make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
                 "SCAN-SSA" : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
                 "SCAN-RSS" : ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
-                "TRNS"     : ["NR_DPUS=X NR_TASKLETS=Y make all", "./bin/host_code -w 0 -e 1 -p 2048 -o 12288 -x 1"],}
+                "VA_CUSTOM": ["NR_DPUS=X NR_TASKLETS=Y BL=Z make all", "./bin/host_code -w 0 -e 1 -i I -x 1"],
+                "TRNS"     : ["NR_DPUS=X NR_TASKLETS=Y make all", "./bin/host_code -w 0 -e 1 -p 1024 -o 12288 -x 1"],}
 
 def run(app_name):
 
@@ -70,8 +71,8 @@ def run(app_name):
                     m = m.replace("Y", str(t))
                     m = m.replace("Z", str(b))
 
-                    if MODE == "ASYNC":
-                        m += " MODE=ASYNC"
+                    if MODE == "DMP":
+                        m += " MODE=DMP"
 
                     print ("Running = " + m)
                     try:

@@ -1,2 +1,0 @@
-python3 run_ame.py TRNS 1024 4194304000 SYNC
--

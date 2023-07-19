@@ -7,19 +7,9 @@ workload="$2"
 nr_threads=32
 target_program="memcached"
 
-# YCSB size
-ycsb_size="85M"
-
-# Experiment groups
-group="groupa"
-#group="groupb"
-#group="groupc"
-#group="groupd"
-#group="groupe"
-
 # run YCSB workload
 cd ${SUBMODULES_PATH}/YCSB
-numactl --interleave=all ./bin/ycsb run memcached -s -P workloads/workload${workload} -p "memcached.hosts=127.0.0.1:${port_num}" -threads ${nr_threads} > output_ycsb/outputRun_${workload}_${ycsb_size}_${group}.txt
+numactl --interleave=all ./bin/ycsb run memcached -s -P workloads/workload${workload} -p "memcached.hosts=127.0.0.1:${port_num}" -threads ${nr_threads} > output_ycsb/outputRun_${workload}.txt
 
 ps -ef | grep memcached | grep -v grep | while read -r line
 do
@@ -32,7 +22,7 @@ do
 
          if [ $PORT_NUM -eq $port_num ]
          then
-             ps -o min_flt,maj_flt ${PID} > output_major_pf/out_pf_${workload}_${ycsb_size}_${group}.txt
+             ps -o min_flt,maj_flt ${PID} > output_major_pf/out_pf_${workload}.txt
          fi
      fi
 done

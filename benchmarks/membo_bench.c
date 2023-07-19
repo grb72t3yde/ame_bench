@@ -3,8 +3,8 @@
 #include <pthread.h>
 #include <string.h>
 #include "timer.h"
-#include "ame_bench.h"
-#include "ame_config.h"
+#include "membo_bench.h"
+#include "membo_config.h"
 
 void *run_one_workload(void *arg)
 {
@@ -53,8 +53,6 @@ int main()
 #if RUN_HOST_WORKLOAD == 1
     workload_t host_workload;
 
-    system("bash ~/upmem-2021.3.0-Linux-x86_64-ame/upmem_env.sh");
-
     char *load_ycsb_cmd = "bash ./load_one_ycsb_workload.sh 11211 a";
     char *run_ycsb_cmd = "bash ./run_one_ycsb_workload.sh 11211 a";
     host_workload.cmd = malloc(strlen(load_ycsb_cmd) + 1);
@@ -74,30 +72,31 @@ int main()
 #endif
 
 #if RUN_DPU_WORKLOADS == 1
-    FILE *fp = fopen("benchmarks/dpu/SCAN-RSS_1024.txt", "r");
+    FILE *fp = fopen("benchmarks/dpu/VA_CUSTOM.txt", "r");
 
     /* Pre-DPU program delay */
-    system("bash ./count_down_timer.sh 0 5 0");
+    //system("bash ./count_down_timer.sh 0 5 0");
 
-    for (int i = 0; i < NR_GROUPS; ++i) {
-        workload_t group[NR_MAX_WORKLOAD_PER_GROUP];
-
-        int nr_workloads_of_group = read_dpu_input_file(fp, group);
+    workload_t group[NR_ALLOCATION];
+    read_dpu_input_file(fp, group);
+    
+    for (int i = 0; i < NR_ALLOCATION; ++i) {
 
         printf("=================================================================\n");
         printf(KYEL"Section2 evaluation: Launching DPU process...\n");
-        for (int j = 0; j < nr_workloads_of_group; j++) {
-            pthread_create(&group[j].th, NULL, &run_one_workload, &group[j]);
-        }
+        pthread_create(&group[i].th, NULL, &run_one_workload, &group[i]);
+        /* delta X */
+        system("bash ./count_down_timer.sh 0 1 0");
+    }
 
-        for (int j = 0; j < nr_workloads_of_group; j++) {
-            if (pthread_join(group[j].th, NULL) != 0) {
-                perror("Fail to join thread\n");
-            }
+    for (int i = 0; i < NR_ALLOCATION; ++i) {
+        if (pthread_join(group[i].th, NULL) != 0) {
+            perror("Fail to join thread\n");
         }
         printf(KYEL"Section2 evaluation: DPU process terminated!\n");
         printf("=================================================================\n");
     }
+
     fclose(fp);
 #endif
 
