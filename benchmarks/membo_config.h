@@ -2,7 +2,7 @@
 #define AME_BENCH_CONFIG_H
 
 /* number of workloads */
-#define DELTA_Y 4
+#define DELTA_Y 1
 #define NR_ALLOCATION (16 / DELTA_Y)
 
 #define RUN_HOST_WORKLOAD 1

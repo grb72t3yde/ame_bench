@@ -72,7 +72,7 @@ int main()
 #endif
 
 #if RUN_DPU_WORKLOADS == 1
-    FILE *fp = fopen("benchmarks/dpu/MULTI_CONFIG3.txt", "r");
+    FILE *fp = fopen("benchmarks/dpu/MULTI_CONFIG1.txt", "r");
 
 #if RUN_DPU_WORKLOADS == 1 && RANK_RESERVATION_ACTIVATED == 1
     system("~/membo_rank_reservation/membo_rank_reserv &");
@@ -89,7 +89,7 @@ int main()
         printf(KYEL"Section2 evaluation: Launching DPU process...\n");
         pthread_create(&group[i].th, NULL, &run_one_workload, &group[i]);
         /* delta X */
-        system("bash ./count_down_timer.sh 0 1 0");
+        system("bash ./count_down_timer.sh 0 1 30");
     }
 
     for (int i = 0; i < NR_ALLOCATION; ++i) {
