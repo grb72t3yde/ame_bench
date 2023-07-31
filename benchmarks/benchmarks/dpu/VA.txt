@@ -1,2 +1,2 @@
-python3 run_prim_workload.py VA 1024 4194304000 DMP
+python3 run_prim_workload.py VA 1024 4194304000 NODMP
 -

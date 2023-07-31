@@ -1,0 +1,17 @@
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 64 524288000 NODMP
+-

@@ -1,0 +1,5 @@
+python3 run_prim_workload.py VA_CUSTOM 256 2097152000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 256 2097152000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 256 2097152000 NODMP
+python3 run_prim_workload.py VA_CUSTOM 256 2097152000 NODMP
+-
